@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include "controle_taxa.h"
 
 #define PORTA 5000
 #define BUFFER_SIZE 4096
@@ -116,8 +117,8 @@ void *handle_client(void *client_socket_ptr) {
 
         // --- Monta a Resposta HTTP ---
         // Este é um exemplo simples. O ideal é ler um arquivo (ex: index.html)
-        char *html_content = "<html><head><title>Servidor MVP1</title></head>"
-                             "<body><h1>Ola!</h1><p>Este eh o MVP1 do servidor HTTP concorrente.</p></body></html>";
+        char *html_content = "<html><head><title>Servidor MVP2</title></head>"
+                             "<body><h1>Ola!</h1><p>Este eh o MVP2 do servidor HTTP concorrente.</p></body></html>";
         
         char http_response[BUFFER_SIZE];
         sprintf(http_response, 
@@ -129,12 +130,10 @@ void *handle_client(void *client_socket_ptr) {
                 "%s", 
                 strlen(html_content), html_content);
         
-        // Envia a resposta
-        int bytes_sent = write(client_socket, http_response, strlen(http_response));
-        if (bytes_sent < 0) {
-            perror("Falha ao escrever no socket");
-            break;
-        }
+        // Envia a resposta com taxa controlada
+	// Vamos testar com um valor fixo de 500 kbps por enquanto
+	int taxa_teste_kbps = 500;
+	send_throttled(client_socket, http_response, strlen(http_response), taxa_teste_kbps);
 
         // Verifica se o cliente pediu para fechar a conexão
         if (strstr(buffer, "Connection: close") != NULL) {
