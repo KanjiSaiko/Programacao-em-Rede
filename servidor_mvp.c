@@ -23,10 +23,10 @@
 #include "controle_taxa.h" 
 
 // --- DEFINIÇÕES GERAIS ---
-#define PORTA 5000         // Porta onde o servidor vai escutar
+#define PORTA 5000       // Porta onde o servidor vai escutar
 #define BUFFER_SIZE 4096   // Tamanho do buffer para leitura de requisições
 #define MAX_CLIENTS 30     // Número máximo de conexões pendentes na fila do SO
-[cite_start]#define DEFAULT_RATE_KBPS 1000 // Taxa padrão para IPs não listados no arquivo de configuração [cite: 36]
+#define DEFAULT_RATE_KBPS 1000 // Taxa padrão para IPs não listados no arquivo de configuração
 #define CONFIG_FILE "rates.conf" // Nome do arquivo que contém as regras IP -> Taxa
 
 // --- ESTRUTURAS DE DADOS ---
@@ -42,7 +42,7 @@ struct RateConfig rate_configs[MAX_CLIENTS];
 int num_rate_configs = 0; // Contador de quantas regras foram carregadas
 
 // Variáveis cruciais para o Controle de Admissão
-int max_server_rate_kbps = 0;        [cite_start]// O limite total de velocidade do servidor (passado via linha de comando) [cite: 39]
+int max_server_rate_kbps = 0;        // O limite total de velocidade do servidor (passado via linha de comando)
 int current_allocated_rate_kbps = 0; // Quanto da velocidade total já está sendo usada no momento
 
 // Mutex (Mutual Exclusion): Essencial em programas multithread.
@@ -167,8 +167,8 @@ void load_rate_configs() {
     while (fgets(line, sizeof(line), fp) && num_rate_configs < MAX_CLIENTS) {
         // sscanf faz o parse da linha: espera uma string (IP) e um inteiro (taxa)
         if (sscanf(line, "%s %d", 
-               rate_configs[num_rate_configs].ip, 
-               &rate_configs[num_rate_configs].rate_kbps) == 2) {
+                  rate_configs[num_rate_configs].ip, 
+                  &rate_configs[num_rate_configs].rate_kbps) == 2) {
             num_rate_configs++;
         }
     }
@@ -185,7 +185,7 @@ int get_client_rate(const char* client_ip) {
             return rate_configs[i].rate_kbps;
         }
     }
-    return DEFAULT_RATE_KBPS; [cite_start]// [cite: 36]
+    return DEFAULT_RATE_KBPS;
 }
 
 // Retorna o MIME type (Content-Type) baseado na extensão do arquivo.
@@ -224,7 +224,7 @@ void *handle_client(void *client_socket_ptr) {
     //    Precisamos do mutex para verificar e atualizar a variável global com segurança.
     pthread_mutex_lock(&rate_mutex);
 
-    [cite_start]// Verifica se adicionar este novo cliente excederia a capacidade total do servidor [cite: 39]
+    // Verifica se adicionar este novo cliente excederia a capacidade total do servidor
     if (current_allocated_rate_kbps + client_rate > max_server_rate_kbps) {
         // CASO DE FALHA: Servidor cheio.
         pthread_mutex_unlock(&rate_mutex); // Libera o mutex imediatamente!
