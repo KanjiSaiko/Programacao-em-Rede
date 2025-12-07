@@ -38,6 +38,7 @@ Para que o servidor funcione corretamente, a estrutura de diretórios deve ser o
 └── HTML/               # [IMPORTANTE] Diretório contendo os arquivos do site
     ├── index.html      # Página principal
     └── imagem.jpg      # Imagem grande para teste de throttling
+``
 
 ## ⚙️ Compilação
 
