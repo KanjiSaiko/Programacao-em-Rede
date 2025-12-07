@@ -46,6 +46,7 @@ gcc -o servidor_mvp2 servidor_mvp.c controle_taxa.c -pthread -lrt
 
 ## 🚀 Como Executar e Testar
 Para verificar se a banda está sendo dividida corretamente entre conexões do mesmo IP, abra dois terminais e execute o wget simultaneamente: wget http://localhost:5000/imagem.jpg -O /dev/null
+
 Resultado Esperado: Se o limite do IP for 500 kbps, cada download deve ocorrer a aproximadamente 250 kbps
 
 Acesse o endereço abaixo no seu navegador (se estiver na mesma máquina): http://localhost:5000/index.html
@@ -55,10 +56,14 @@ Acesse o endereço abaixo no seu navegador (se estiver na mesma máquina): http:
 O servidor utiliza uma thread dedicada para cada cliente conectado (handle_client), permitindo concorrência real.
 
 **Lógica de Traffic Shaping**
+
   O controle de taxa é implementado na camada de aplicação (arquivo controle_taxa.c):
+  
     O arquivo é enviado em pedaços (CHUNK_SIZE = 1 KB).
     O servidor calcula o tempo necessário para transmitir esse pedaço na velocidade alvo: Tempo = Tamanho / Taxa.
     A thread é pausada (nanosleep) por esse tempo exato após cada envio.
+    
     Lógica Compartilhada: Uma variável na struct de configuração conta o número de conexões ativas por IP. A cada iteração de envio, a taxa alvo é recalculada: Taxa_Efetiva = Taxa_Configurada / Conexoes_Ativas.
+    
 O cálculo do RTT e banda não é feito por "ping", mas sim consultando diretamente as estatísticas do Kernel Linux para o socket TCP aberto, utilizando a syscall getsockopt com a flag TCP_INFO
 
